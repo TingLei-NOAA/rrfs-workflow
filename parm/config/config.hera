@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 # machine-specific settings
 #
-topdir=/scratch2/BMC/rtrr/FIX_RRFS2/staged_data/ops
+topdir=/scratch2/BMC/rtrr/May2024
 export COMINgfs=${COMINgfs:-"${topdir}/GFS"}
 export COMINrap=${COMINrap:-"${topdir}/RAP"}
 export COMINgefs=${COMINgefs:-"${topdir}/GEFS"}
-export COMINrrfs=${COMINrrfs:-"/COMINrrfs_not_defined"}
+export COMINrrfs=${COMINrrfs:-"/scratch2/NCEPDEV/stmp3/Ting.Lei/rrfs2_d"}
 export COMINhrrr=${COMINhrrr:-"/COMINhrrr_not_defined"}
 #
 export OBSINprepbufr=${OBSINprepbufr:-"${topdir}/obs_rap"}

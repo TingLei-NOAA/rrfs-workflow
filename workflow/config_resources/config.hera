@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Hera -specific settings
-export ACCOUNT=${ACCOUNT:-rtrr}
+#export ACCOUNT=${ACCOUNT:-rtrr}
+export ACCOUNT=${ACCOUNT:-fv3-cam}
 export ACCOUNT2=${ACCOUNT2:-${ACCOUNT}}
 export QUEUE=${QUEUE:-batch}
 export QUEUE2=${QUEUE2:-${QUEUE}}
