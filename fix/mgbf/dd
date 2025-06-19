@@ -1,0 +1,41 @@
+  background error:
+    covariance model: ensemble
+    localization:
+      localization method: SABER
+      saber central block:
+        saber block name: MGBF_covariance
+        mgbf namelist file: mgbf.nml
+      saber outer blocks:
+      -  saber block name: interpolation
+         inner geometry:
+           function space: StructuredColumns
+           grid:
+             type : "regional"
+             nx : 224
+             ny : 224
+             dx : 35.0e3
+             dy : 35.0e3
+             lonlat(centre) : [261, 40]
+             projection :
+               type       : lambert_conformal_conic
+               latitude0  : 40
+               longitude0 : 261
+               units: "degrees"
+             y_numbering : 1
+           partitioner: checkerboard
+
+           halo: 1
+
+         forward interpolator:
+           local interpolator type: oops unstructured grid interpolator
+         inverse interpolator:
+           local nterpolator type: oops unstructured grid interpolator
+
+    members from template:
+      template:
+        <<: *memberConfig
+        filename: ./data/ens/mem%iMember%.nc
+      pattern: "%iMember%"
+      start: 1
+      zero padding: 3
+      nmembers: 30

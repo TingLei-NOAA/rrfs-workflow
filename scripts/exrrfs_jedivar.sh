@@ -36,6 +36,9 @@ ln -snf "${FIXrrfs}/stream_list/${PHYSICS_SUITE}"/*  stream_list/
 ${cpreq} "${FIXrrfs}"/jedi/obsop_name_map.yaml .
 ${cpreq} "${FIXrrfs}"/jedi/keptvars.yaml .
 ${cpreq} "${FIXrrfs}"/jedi/geovars.yaml .
+if [[ ${USE_MGBF_ENSLOC:-false} == true ]]; then 
+${cpreq} "${FIXrrfs}"/mgbf/${mgbf_nml:-localization-jim_line_2G-D1L30-35kmv6-5var-p196.nml} mgbf.nml
+fi
 #
 # create data directory
 #
@@ -44,7 +47,12 @@ mkdir -p obs ens static_bec satbias_in satbias_out
 #
 #  bump files and static BEC files
 #
-ln -snf "${FIXrrfs}/bumploc/${MESH_NAME}_L${nlevel}_${NTASKS}_401km11levels"  bumploc
+
+if [[ "${USE_MGBF_ENSLOC}" == "true" ]]; then
+   ln -snf "${FIXrrfs}/mgbf/localization-jim_line_2G-D1-35kmv6-5var-p196.nml"  . 
+else
+   ln -snf "${FIXrrfs}/bumploc/${MESH_NAME}_L${nlevel}_${NTASKS}_401km11levels"  bumploc
+fi
 ln -snf "${FIXrrfs}/static_bec/${MESH_NAME}_L${nlevel}/stddev.nc"  static_bec/stddev.nc
 ln -snf "${FIXrrfs}/static_bec/${MESH_NAME}_L${nlevel}/nicas_${NTASKS}"  static_bec/nicas
 ln -snf "${FIXrrfs}/static_bec/${MESH_NAME}_L${nlevel}/vbal_${NTASKS}"  static_bec/vbal
@@ -117,7 +125,13 @@ if [[ ${start_type} == "warm" ]] || [[ ${start_type} == "cold" && ${COLDSTART_CY
   export OMP_NUM_THREADS=1
 
   source prep_step
-  ${cpreq} "${EXECrrfs}"/mpasjedi_variational.x .
+  if [[ $USE_MGBF_ENSLOC == true ]]; then
+ #    ln -sf  /scratch2/NCEPDEV/fv3-cam/Ting.Lei/dr-jedi-bundle-current/jedi-bundle/build/bin/mpasjedi_variational.x .
+     ln -sf  /scratch2/NCEPDEV/fv3-cam/Ting.Lei/dr-jedi-bundle-current/jedi-bundle/build_mpasjedi_no_varder/bin/mpasjedi_variational.x .
+  else
+     ${cpreq} "${EXECrrfs}"/mpasjedi_variational.x .
+  fi
+  
   ${MPI_RUN_CMD} ./mpasjedi_variational.x jedivar.yaml log.out
   # check the status
   export err=$?

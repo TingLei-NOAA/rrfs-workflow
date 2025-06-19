@@ -71,30 +71,34 @@ cost function:
     filename: mpasin.nc
     date: *analysisDate
   background error:
-    covariance model: ensemble
-    localization:
-      localization method: SABER
-      saber central block:
-        saber block name: BUMP_NICAS
-        active variables: *incvars
-        read:
-          io:
-            data directory: data/bumploc
-            files prefix: bumploc
-          drivers:
-            multivariate strategy: duplicated
-            read local nicas: true
-          model:
-            level for 2d variables: last
-    members from template:
-      template:
-        <<: *memberConfig
-        filename: ./data/ens/mem%iMember%.nc
-      pattern: "%iMember%"
-      start: 1
-      zero padding: 3
-      nmembers: 30
-
+    covariance model: hybrid
+    components:
+    - covariance:
+        covariance model: ensemble
+        localization:
+          localization method: SABER
+          saber central block:
+            saber block name: BUMP_NICAS
+            active variables: *incvars
+            read:
+              io:
+                data directory: data/bumploc
+                files prefix: bumploc
+              drivers:
+                multivariate strategy: duplicated
+                read local nicas: true
+              model:
+                level for 2d variables: last
+        members from template:
+          template:
+            <<: *memberConfig
+            filename: ./data/ens/mem%iMember%.nc
+          pattern: "%iMember%"
+          start: 1
+          zero padding: 3
+          nmembers: 30
+      weight:
+        value: "1.0"
   observations:
      observers:
      - obs space:

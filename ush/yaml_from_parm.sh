@@ -3,17 +3,27 @@
 #
 # shellcheck disable=SC2154
 if [[ "$1" == "jedivar" ]]; then
-  sed -e "s/@analysisDate@/${analysisDate}/" -e "s/@beginDate@/${beginDate}/" \
-      -e "s/@HYB_WGT_STATIC@/${HYB_WGT_STATIC}/" -e "s/@HYB_WGT_ENS@/${HYB_WGT_ENS}/" \
-      "${EXPDIR}/config/jedivar.yaml" > jedivar.yaml
-  if [[ "${HYB_WGT_ENS}" == "0" ]] || [[ "${HYB_WGT_ENS}" == "0.0" ]]; then # pure 3DVAR
-    sed -i '124,149d' ./jedivar.yaml
-  elif [[ "${HYB_WGT_STATIC}" == "0" ]] || [[ "${HYB_WGT_STATIC}" == "0.0" ]] ; then # pure 3DEnVar
-    sed -i '77,123d' ./jedivar.yaml
-  fi
-  if [[ "${start_type}" == "cold" ]]; then
-      sed -i '7s/mpasin/ana/' jedivar.yaml
-  fi
+   if [[  ${USE_MGBF_ENSLOC:-false} != "true" ]]; then
+      sed -e "s/@analysisDate@/${analysisDate}/" -e "s/@beginDate@/${beginDate}/" \
+          -e "s/@HYB_WGT_STATIC@/${HYB_WGT_STATIC}/" -e "s/@HYB_WGT_ENS@/${HYB_WGT_ENS}/" \
+          "${EXPDIR}/config/jedivar.yaml" > jedivar.yaml
+      if [[ "${HYB_WGT_ENS}" == "0" ]] || [[ "${HYB_WGT_ENS}" == "0.0" ]]; then # pure 3DVAR
+        sed -i '124,149d' ./jedivar.yaml
+      elif [[ "${HYB_WGT_STATIC}" == "0" ]] || [[ "${HYB_WGT_STATIC}" == "0.0" ]] ; then # pure 3DEnVar
+        sed -i '77,123d' ./jedivar.yaml
+      fi
+      if [[ "${start_type}" == "cold" ]]; then
+          sed -i '7s/mpasin/ana/' jedivar.yaml
+      fi
+    else
+#clt to do better to use MGBF options
+      sed -e "s/@analysisDate@/${analysisDate}/" -e "s/@beginDate@/${beginDate}/" \
+          -e "s/@HYB_WGT_STATIC@/${HYB_WGT_STATIC}/" -e "s/@HYB_WGT_ENS@/${HYB_WGT_ENS}/" \
+          "${EXPDIR}/config/jedivar.yaml" > jedivar.yaml
+      if [[ "${start_type}" == "cold" ]]; then
+          sed -i '7s/mpasin/ana/' jedivar.yaml # a little risky when the lines move around
+      fi
+    fi
   template="jedivar.yaml"
 
 else

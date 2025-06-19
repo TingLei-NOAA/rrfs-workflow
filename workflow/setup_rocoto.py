@@ -83,7 +83,10 @@ if os.getenv("DO_JEDI", 'false').upper() == "TRUE":
         shutil.copy(f'{HOMErrfs}/parm/getkf_observer.yaml', f'{exp_configdir}/getkf_observer.yaml')
         shutil.copy(f'{HOMErrfs}/parm/getkf_solver.yaml', f'{exp_configdir}/getkf_solver.yaml')
     else:
-        shutil.copy(f'{HOMErrfs}/parm/jedivar.yaml', f'{exp_configdir}/jedivar.yaml')
+        if os.getenv('USE_MGBF_ENSLOC', 'FALSE').upper() == "FALSE":
+           shutil.copy(f'{HOMErrfs}/parm/jedivar.yaml', f'{exp_configdir}/jedivar.yaml')
+        else:
+           shutil.copy(f'{HOMErrfs}/fix/mgbf/jedivar_ens3dvar.yaml', f'{exp_configdir}/jedivar.yaml')
 
 # copyover the VERSION file
 shutil.copy(f'{HOMErrfs}/workflow/VERSION', f'{expdir}/VERSION')
