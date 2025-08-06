@@ -46,6 +46,8 @@ export RETRO_PERIOD="2024052700-2024052800"
 export CYCLEDEF_IC_STEP_HRS=12  # do ic jobs every step hours
 export CYCLEDEF_LBC_STEP_HRS=12 # do lbc jobs every step hours
 export COLDSTART_CYCS="00 12"   # cycles to cold start from external models
+export SFC_UPDATE_CYCS=${COLDSTART_CYCS}
+
 #export DO_SPINUP=true
 #export PRODSWITCH_CYCS="06 18"  # cycles to PROD switch to the spun-up ICs
 #
@@ -70,7 +72,6 @@ export WALLTIME_UPP="2:00:00"
 export WALLTIME_JEDIVAR="00:30:00"
 #
 export KEEPDATA=no
-export MPI_RUN_CMD=srun
 #
 # local.setup: setup some local options specific to a platform or an experiment
 #

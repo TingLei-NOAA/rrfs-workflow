@@ -16,6 +16,10 @@ elif [[ ${MESH_NAME} == "conus3km" ]]; then
   dt=20
   substeps=4
   radt=15
+elif [[ ${MESH_NAME} == "south3.5km" ]]; then
+  dt=25
+  substeps=4
+  radt=15
 else
   echo "Unknown MESH_NAME, exit!"
   err_exit
@@ -31,11 +35,12 @@ echo "forecast length for this cycle is ${fcst_len_hrs_thiscyc}"
 # determine whether to begin new cycles
 #
 if [[ -r "${UMBRELLA_PREP_IC_DATA}/init.nc" ]]; then
-  ln -snf "${UMBRELLA_PREP_IC_DATA}/init.nc" mpasin.nc
+  ln -snf "${UMBRELLA_PREP_IC_DATA}/init.nc" init.nc
   start_type='cold'
   do_DAcycling='false'
 else
-  ln -snf "${UMBRELLA_PREP_IC_DATA}/mpasin.nc" mpasin.nc
+  timestr=$(date -d "${CDATE:0:8} ${CDATE:8:2}" +%Y-%m-%d_%H.%M.%S)
+  ln -snf "${UMBRELLA_PREP_IC_DATA}/mpasout.nc" "mpasout.${timestr}.nc"
   start_type='warm'
   do_DAcycling='true'
 fi
@@ -67,6 +72,9 @@ if [[ "${MESH_NAME}" == "conus12km" ]]; then
 elif [[ "${MESH_NAME}" == "conus3km" ]]; then
   pio_num_iotasks=40
   pio_stride=20
+elif [[ "${MESH_NAME}" == "south3.5km" ]]; then
+  pio_num_iotasks=10
+  pio_stride=24
 fi
 file_content=$(< "${PARMrrfs}/${physics_suite}/namelist.atmosphere") # read in all content
 eval "echo \"${file_content}\"" > namelist.atmosphere

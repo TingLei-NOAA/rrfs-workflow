@@ -20,7 +20,7 @@ if [[ -r "${UMBRELLA_PREP_IC_DATA}/init.nc" ]]; then
 else
   start_type='warm'
   do_DAcycling='true'
-  initial_file=${UMBRELLA_PREP_IC_DATA}/mpasin.nc
+  initial_file=${UMBRELLA_PREP_IC_DATA}/mpasout.nc
 fi
 #
 # link fix files from physics, meshes, graphinfo, stream list, and jedi
@@ -74,7 +74,7 @@ source "${USHrrfs}/find_ensembles.sh"
 #  link background
 #
 cd "${DATA}" || exit 1
-ln -snf "${initial_file}"  mpasin.nc
+ln -snf "${initial_file}" .
 #
 # generate namelist, streams, and jedivar.yaml on the fly
 run_duration=1:00:00
@@ -88,6 +88,10 @@ if [[ "${MESH_NAME}" == "conus12km" ]]; then
   radt=30
 elif [[ "${MESH_NAME}" == "conus3km" ]]; then
   dt=20
+  substeps=4
+  radt=15
+elif [[ "${MESH_NAME}" == "south3.5km" ]]; then
+  dt=25
   substeps=4
   radt=15
 else
@@ -139,20 +143,21 @@ if [[ ${start_type} == "warm" ]] || [[ ${start_type} == "cold" && ${COLDSTART_CY
   #
   # ncks increments to cold_start IC
   if [[ ${start_type} == "cold" ]]; then
-    var_list="pressure_p,rho,qv,qc,qr,qi,qs,qg,ni,nr,ng,nc,nifa,nwfa,volg,surface_pressure,theta,u,uReconstructZonal,uReconstructMeridional"
-    ncks -O -C -x -v ${var_list} mpasin.nc tmp.nc
+    var_list="pressure_p,rho,qv,qc,qr,qi,qs,qg,ni,nr,ng,nc,nifa,nwfa,volg,surface_pressure,theta,u,uReconstructZonal,uReconstructMeridional,refl10cm,w"
+    ncks -O -C -x -v ${var_list} init.nc tmp.nc
     ncks -A -v ${var_list} ana.nc tmp.nc
     export err=$?
     err_chk
-    mv tmp.nc "$(readlink -f mpasin.nc)"
+    mv tmp.nc "$(readlink -f init.nc)"
     mv ana.nc ..
+  else
+    cp "${DATA}"/mpasout.nc "${COMOUT}/jedivar/${WGF}/mpasout.${timestr}.nc"
   fi
   #
   # the input/output file are linked from the umbrella directory, so no need to copy
   cp "${DATA}"/jdiag* "${COMOUT}/jedivar/${WGF}"
   cp "${DATA}"/jedivar*.yaml "${COMOUT}/jedivar/${WGF}"
   cp "${DATA}"/log.out "${COMOUT}/jedivar/${WGF}"
-  cp "${DATA}"/mpasin.nc "${COMOUT}/jedivar/${WGF}/mpasout.${timestr}.nc"
 
 else
   echo "INFO: No DA at the cold start cycle"

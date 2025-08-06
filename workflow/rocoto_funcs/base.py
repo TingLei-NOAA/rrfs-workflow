@@ -66,7 +66,7 @@ def header_entities(xmlFile, expdir):
     partition = os.getenv('PARTITION', 'hera')
     reservation = os.getenv('RESERVATION', '')
     mesh_name = os.getenv('MESH_NAME', 'na3km')
-    keepdata = os.getenv('KEEPDATA', 'yes')
+    keepdata = os.getenv('KEEPDATA', 'YES').strip().upper()
     mpi_run_cmd = os.getenv('MPI_RUN_CMD', 'srun')
     wgf = os.getenv('WGF', 'det')
     cyc_interval = os.getenv('CYC_INTERVAL', '3')
@@ -155,12 +155,12 @@ def wflow_begin(xmlFile):
     cyclethrottle = os.getenv("RETRO_CYCLETHROTTLE", "3")
     taskthrottle = os.getenv("RETRO_TASKTHROTTLE", "30")
     machine = os.getenv('MACHINE').lower()
-    if machine in ['wcoss2']:
+    if machine in ['wcoss2', 'derecho']:
         scheduler = 'pbspro'
     else:
         scheduler = 'slurm'
     if realtime == "TRUE":
-        text = '<workflow realtime="T" scheduler="{scheduler}" cyclethrottle="26" cyclelifespan="01:00:00:00">'
+        text = f'<workflow realtime="T" scheduler="{scheduler}" cyclethrottle="26" cyclelifespan="01:00:00:00">'
     else:
         text = f'<workflow realtime="F" scheduler="{scheduler}" cyclethrottle="{cyclethrottle}" taskthrottle="{taskthrottle}">'
     xmlFile.write(f'\n{text}\n')
@@ -318,10 +318,6 @@ def xml_task(
     deadline = get_cascade_env(f'DEADLINE_{task_id}'.upper())
     if metatask is False:
         meta_id = task_id
-        source(f"{expdir}/config/config.{meta_id}", optional=True)
-    else:  # True
-        source(f"{expdir}/config/config.{meta_id}", optional=True)
-        source(f"{expdir}/config/config.{task_id}", optional=True)
     if command_id == "":
         command_id = meta_id
     dcTaskRes = {

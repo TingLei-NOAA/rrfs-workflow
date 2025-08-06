@@ -8,6 +8,12 @@ HOMErrfs="$(dirname "$rundir")"
 source "${HOMErrfs}/workflow/ush/detect_machine.sh"
 source "${HOMErrfs}/workflow/ush/init.sh"
 
+if [[ "${MACHINE}" == "derecho" ]]; then
+  #export GFORTRAN_CONVERT_UNIT='big_endian:101-200'
+  #export LMOD_TMOD_FIND_FIRST=yes
+  export COMPILER=gnu
+fi
+
 # get a clean copy of the same MPAS-Model as in the workflow
 # if RDASApp has a different version from the workflow
 # and users don't specify 'different_mpas' at the command line
@@ -17,13 +23,14 @@ else
   use_same_mpas=yes
 fi
 cd "${HOMErrfs}/sorc/MPAS-Model" || exit 1
+remote_url=$(git remote get-url origin)
 hash_workflow=$(git rev-parse HEAD)
 cd "${HOMErrfs}/sorc/RDASApp/sorc/mpas" || exit 1
 hash_rdasapp=$(git rev-parse HEAD)
 if [[ "${hash_workflow}" != "${hash_rdasapp}" ]] && [[ "${use_same_mpas}" == "yes" ]]; then
   cd "${HOMErrfs}/sorc/RDASApp/sorc" || exit 1
   mv mpas "mpas.$(date +%s)" # save a copy of current RDASApp mpas
-  git clone https://github.com/NOAA-GSL/MPAS-Model.git mpas
+  git clone "${remote_url}" mpas
   cd "${HOMErrfs}/sorc/RDASApp/sorc/mpas" || exit 1
   git checkout "${hash_workflow}"
   git submodule update --init --recursive
@@ -32,11 +39,8 @@ fi
 EXEC="${HOMErrfs}/sorc/RDASApp/build/bin/mpasjedi_variational.x"
 EXEC2="${HOMErrfs}/sorc/RDASApp/build/bin/bufr2ioda.x"
 EXEC3="${HOMErrfs}/sorc/RDASApp/build/bin/mpasjedi_enkf.x"
+EXEC4="${HOMErrfs}/sorc/RDASApp/build/bin/bufr2netcdf.x"
 cd "${HOMErrfs}/sorc/RDASApp" || exit 1
-
-# workaround for using a new Registry.xml
-# https://github.com/NOAA-GSL/MPAS-Model/pull/115 by Guoqing
-cp ../_workaround_/MPAS-Model/Registry.xml sorc/mpas/src/core_atmosphere
 
 # workaround for ramp option in ObsErrorFactorPressureCheck
 # https://github.com/JCSDA-internal/ufo/pull/3705 by Sijie
@@ -45,14 +49,15 @@ cp ../_workaround_/RDASApp/ObsErrorFactorPressureCheck.h sorc/ufo/src/ufo/filter
 
 # workaround for using the GSL surface operator
 # https://github.com/JCSDA-internal/ufo/pull/3622 by Sijie
-#cp ../_workaround_/RDASApp/CMakeLists.txt sorc/ufo/src/ufo
-#cp -r ../_workaround_/RDASApp/sfccorrected sorc/ufo/src/ufo/operators
+cp ../_workaround_/RDASApp/sfccorrected/EvalSurfaceTemperature.cc sorc/ufo/src/ufo/operators/sfccorrected/EvalSurfaceTemperature.cc
+cp ../_workaround_/RDASApp/sfccorrected/EvalSurfaceTemperature.h sorc/ufo/src/ufo/operators/sfccorrected/EvalSurfaceTemperature.h
+cp ../_workaround_/RDASApp/sfccorrected/ObsSfcCorrectedParameters.h sorc/ufo/src/ufo/operators/sfccorrected/ObsSfcCorrectedParameters.h
 
-# workaround for compiling iodaconverter on Gaea
-# Junjun is working on a PR
-if [[ "${MACHINE}" == "gaea" ]]; then
-  cp ../_workaround_/RDASApp/TimeoffsetVariable.cpp sorc/iodaconv/src/bufr/BufrParser/Exports/Variables
-fi
+# workaround for direct radar refl DA
+# https://github.com/JCSDA-internal/mpas-jedi/pull/1045 by Yongming Wang
+cp ../_workaround_/RDASApp/direct_refl/mpas_fields_mod.F90 sorc/mpas-jedi/src/mpasjedi/Fields/mpas_fields_mod.F90
+cp ../_workaround_/RDASApp/direct_refl/mpas_state_mod.F90 sorc/mpas-jedi/src/mpasjedi/State/mpas_state_mod.F90
+cp ../_workaround_/RDASApp/direct_refl/mpas2ufo_vars_mod.F90 sorc/mpas-jedi/src/mpasjedi/Utilities/mpas2ufo_vars_mod.F90
 
 rm -rf build/
 ./build.sh -m MPAS -t NO
@@ -66,4 +71,7 @@ cp "${EXEC2}" "${HOMErrfs}/exec/bufr2ioda.x"
 
 echo "copy ${EXEC3} to ../exec/mpasjedi_enkf.x"
 cp "${EXEC3}" "${HOMErrfs}/exec/mpasjedi_enkf.x"
+
+echo "copy ${EXEC4} to ../exec/bufr2netcdf.x"
+cp "${EXEC4}" "${HOMErrfs}/exec/bufr2netcdf.x"
 exit 0

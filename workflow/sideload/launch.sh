@@ -57,6 +57,11 @@ case ${task_id} in
     module load "rrfs/${MACHINE}.intel"
     module load wgrib2/2.0.8
     ;;
+  prep_ic)
+    module purge
+    module load "rrfs/${MACHINE}.intel"
+    module load nco
+    ;;
   jedivar|getkf*)
     module purge
     module use "${HOMErrfs}/sorc/RDASApp/modulefiles"
@@ -72,7 +77,11 @@ case ${task_id} in
   mpassit)
     module purge
     module use "${HOMErrfs}/sorc/MPASSIT/modulefiles"
-    module load "build.${MACHINE}.intel"
+    if [[ ${MACHINE} == "ursa" ]]; then
+      module load "build.${MACHINE}.intel-llvm"
+    else
+      module load "build.${MACHINE}.intel"
+    fi
     ;;
   upp)
     module purge
@@ -80,11 +89,11 @@ case ${task_id} in
     if [[ ${MACHINE} == "wcoss2" ]]; then
       # need to unset module versions sourced earlier and load a couple more
       source "${HOMErrfs}/versions/unset.ver"
-      module load "${MACHINE}"
+      module load "${MACHINE}_intel"
       module load libjpeg/9c
       module load libfabric/1.20.1
     else
-      module load "${MACHINE}"
+      module load "${MACHINE}_intel"
     fi
     ;;
   recenter)
@@ -114,7 +123,7 @@ umask 022
 case ${task_id} in
   clean)
     case ${MACHINE} in
-      gaea|orion|hercules)
+      ursa|gaea|orion|hercules)
         set +x
         module load python
         set -x

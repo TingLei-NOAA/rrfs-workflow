@@ -7,10 +7,10 @@ source "${run_dir}/detect_machine.sh"
 
 case ${MACHINE} in
   wcoss2)
-    FIX_RRFS_LOCATION=/lfs/h2/emc/da/noscrub/samuel.degelia/FIX_RRFS2
+    FIX_RRFS_LOCATION=/lfs/h2/emc/lam/noscrub/FIX_RRFS2
     ;;
   hera)
-    FIX_RRFS_LOCATION=/scratch2/BMC/rtrr/FIX_RRFS2
+    FIX_RRFS_LOCATION=/scratch4/BMC/rtrr/FIX_RRFS2
     ;;
   ursa)
     FIX_RRFS_LOCATION=/scratch4/BMC/rtrr/FIX_RRFS2
@@ -20,6 +20,9 @@ case ${MACHINE} in
     ;;
   orion|hercules)
     FIX_RRFS_LOCATION=/work/noaa/zrtrr/FIX_RRFS2
+    ;;
+  derecho)
+    FIX_RRFS_LOCATION=/glade/work/geguo/FIX_RRFS2
     ;;
   gaea)
     if [[ -d /gpfs/f5 ]]; then
