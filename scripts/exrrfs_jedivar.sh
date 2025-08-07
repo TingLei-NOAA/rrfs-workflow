@@ -131,7 +131,7 @@ if [[ ${start_type} == "warm" ]] || [[ ${start_type} == "cold" && ${COLDSTART_CY
   source prep_step
   if [[ "$USE_MGBF_ENSLOC" == "true" ]] || [[ 1 -eq 1 ]]; then
  #    ln -sf  /scratch2/NCEPDEV/fv3-cam/Ting.Lei/dr-jedi-bundle-current/jedi-bundle/build/bin/mpasjedi_variational.x .
-     ln -sf  /scratch2/NCEPDEV/fv3-cam/Ting.Lei/dr-jedi-bundle-current/jedi-bundle/build_mpasjedi_no_varder/bin/mpasjedi_variational.x .
+     ln -sf  /scratch3/NCEPDEV/fv3-cam/Ting.Lei/dr-jedi-bundle-current/jedi-bundle/build_mpasjedi_no_varder/bin/mpasjedi_variational.x .
   else
      ${cpreq} "${EXECrrfs}"/mpasjedi_variational.x .
   fi
